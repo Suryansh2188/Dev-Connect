@@ -8,6 +8,8 @@ function CreateProject() {
     description: '',
     link: '',
   });
+
+  const [loading, setLoading] = useState(false); // ✅ loading state
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -17,6 +19,7 @@ function CreateProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ start loading
     try {
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/projects`,
@@ -24,9 +27,11 @@ function CreateProject() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('✅ Project posted!');
-      navigate('/');
+      navigate('/my-projects');
     } catch (err) {
       alert(err.response?.data?.message || '❌ Failed to post project');
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
   };
 
@@ -40,7 +45,8 @@ function CreateProject() {
             name="title"
             value={form.title}
             onChange={handleChange}
-            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading} // ✅ disable when loading
+            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="Enter project title"
             required
           />
@@ -53,7 +59,8 @@ function CreateProject() {
             value={form.description}
             onChange={handleChange}
             rows={4}
-            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading} // ✅ disable when loading
+            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="Write a detailed project description..."
             required
           />
@@ -65,7 +72,8 @@ function CreateProject() {
             name="link"
             value={form.link}
             onChange={handleChange}
-            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading} // ✅ disable when loading
+            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="https://github.com/your-project"
             required
           />
@@ -73,9 +81,10 @@ function CreateProject() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          disabled={loading} // ✅ disable button when loading
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Submit Project
+          {loading ? 'Submitting...' : 'Submit Project'}
         </button>
       </form>
     </div>

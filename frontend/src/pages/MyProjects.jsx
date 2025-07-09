@@ -1,31 +1,33 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import axios from "axios";
-import dayjs from "dayjs"; // Make sure you installed this with `npm i dayjs`
+import dayjs from "dayjs";
 
 function MyProjects() {
   const [projects, setProjects] = useState([]);
-  const [editingProject, setEditingProject] = useState(null);
-  const [editForm, setEditForm] = useState({
-    title: "",
-    description: "",
-    link: "",
-  });
+  const [loading, setLoading] = useState(true); // ✅ loading state
 
-  const [activeComments, setActiveComments] = useState(null); // project ID
+  const [activeComments, setActiveComments] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
   const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId"); // assuming it's saved after login
+  const userId = localStorage.getItem("userId");
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetchProjects = async () => {
-    const res = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/projects/me`,
-      { headers }
-    );
-    setProjects(Array.isArray(res.data) ? res.data : [res.data]);
+    try {
+      setLoading(true); // ✅ start loading
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/projects/me`,
+        { headers }
+      );
+      setProjects(Array.isArray(res.data) ? res.data : [res.data]);
+    } catch (err) {
+      alert("Failed to fetch projects");
+    } finally {
+      setLoading(false); // ✅ stop loading
+    }
   };
 
   const fetchComments = async (projectId) => {
@@ -100,7 +102,11 @@ function MyProjects() {
         </a>
       </div>
 
-      {projects.length ? (
+      {loading ? (
+        <p className="text-center text-gray-300 italic animate-pulse">
+          Loading your projects...
+        </p>
+      ) : projects.length ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {projects.map((project) => (
             <div key={project._id} className="p-4 bg-gray-300 shadow rounded">
@@ -164,7 +170,6 @@ function MyProjects() {
                 </span>
               </button>
 
-              {/* Comments Section */}
               {activeComments === project._id && (
                 <div className="mt-3 border-t pt-2 text-sm overflow-y-auto max-h-52 text-gray-700">
                   <h4 className="font-semibold mb-1">Comments:</h4>

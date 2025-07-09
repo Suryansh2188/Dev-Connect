@@ -11,6 +11,8 @@ function ViewEditProject() {
     description: "",
     link: "",
   });
+  const [loading, setLoading] = useState(false); // ✅ loading state
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -32,6 +34,7 @@ function ViewEditProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ start loading
     try {
       await axios.put(
         `${import.meta.env.VITE_API_URL}/api/projects/${id}`,
@@ -42,6 +45,8 @@ function ViewEditProject() {
       navigate("/my-projects");
     } catch (err) {
       alert(err.response?.data?.message || "❌ Failed to update project");
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
   };
 
@@ -55,7 +60,8 @@ function ViewEditProject() {
             name="title"
             value={form.title}
             onChange={handleChange}
-            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="Enter project title"
             required
           />
@@ -68,7 +74,8 @@ function ViewEditProject() {
             value={form.description}
             onChange={handleChange}
             rows={4}
-            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="Write a detailed project description..."
             required
           />
@@ -80,7 +87,8 @@ function ViewEditProject() {
             name="link"
             value={form.link}
             onChange={handleChange}
-            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full border bg-white border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="https://github.com/your-project"
             required
           />
@@ -89,16 +97,18 @@ function ViewEditProject() {
         <div className="flex justify-end gap-2">
           <button
             type="button"
+            disabled={loading}
             onClick={() => navigate("/my-projects")}
-            className="px-4 py-2 bg-gray-300 rounded"
+            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Changes
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </form>

@@ -5,6 +5,7 @@ import axios from 'axios';
 function Profile() {
   const [form, setForm] = useState({ name: '', bio: '', avatar: '' });
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false); // ✅ New state
 
   const token = localStorage.getItem('token');
 
@@ -27,7 +28,7 @@ function Profile() {
     };
 
     fetchProfile();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (e) => {
@@ -36,27 +37,34 @@ function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setUpdating(true); // ✅ Start loading
     try {
       await axios.put(`${import.meta.env.VITE_API_URL}/api/users/profile`, form, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert('Profile updated');
+      alert('✅ Profile updated');
     } catch (err) {
-      alert('Update failed');
+      alert('❌ Update failed');
+    } finally {
+      setUpdating(false); // ✅ End loading
     }
   };
 
-  if (loading) return <div className="text-center p-6 text-gray-600">Loading profile...</div>;
+  if (loading)
+    return <div className="text-center p-6 text-gray-600">Loading profile...</div>;
 
   return (
     <div className="max-w-2xl mt-10 mx-auto px-4">
-      <div className=" max-w-xl mt-2 backdrop-blur-sm mx-auto rounded-xl shadow-lg px-4">
+      <div className="max-w-xl mt-2 backdrop-blur-sm mx-auto rounded-xl shadow-lg px-4">
         <h2 className="text-3xl font-bold mb-6 text-center text-gray-100">My Profile</h2>
         <div className="flex flex-col md:flex-row gap-6">
           {/* Avatar Preview */}
           <div className="flex-shrink-0 self-center md:self-start">
             <img
-              src={form.avatar || 'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png'}
+              src={
+                form.avatar ||
+                'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png'
+              }
               alt="avatar"
               className="w-32 h-32 rounded-full border-4 border-blue-600 object-cover"
             />
@@ -88,9 +96,14 @@ function Profile() {
             />
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+              disabled={updating} // ✅ Disabled while updating
+              className={`w-full text-white py-2 rounded transition ${
+                updating
+                  ? 'bg-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              Update Profile
+              {updating ? 'Updating...' : 'Update Profile'}
             </button>
           </form>
         </div>

@@ -10,34 +10,30 @@ function ProjectDetail() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [reload, setReload] = useState(false);
+  const [loading, setLoading] = useState(true); // ✅ page loading
+  const [commentLoading, setCommentLoading] = useState(false); // ✅ comment post loading
+
   const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId"); // Set this during login
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/projects/${id}`
-        );
-        setProject(res.data);
+        setLoading(true); // ✅ start page loading
+        const [projectRes, commentRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_API_URL}/api/projects/${id}`),
+          axios.get(`${import.meta.env.VITE_API_URL}/api/projects/${id}/comments`),
+        ]);
+        setProject(projectRes.data);
+        setComments(commentRes.data);
       } catch (err) {
-        alert("Failed to load project");
+        alert("Failed to load project or comments");
+      } finally {
+        setLoading(false); // ✅ done loading
       }
     };
 
-    const fetchComments = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/projects/${id}/comments`
-        );
-        setComments(res.data);
-      } catch (err) {
-        console.error("Failed to fetch comments", err);
-      }
-    };
-
-    fetchProject();
-    fetchComments();
+    fetchData();
   }, [id, reload]);
 
   const handleCommentSubmit = async (e, projectId) => {
@@ -45,15 +41,18 @@ function ProjectDetail() {
     if (!newComment.trim()) return;
 
     try {
+      setCommentLoading(true); // ✅ show comment loading
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/projects/${projectId}/comments`,
         { text: newComment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setNewComment("");
-      setReload(!reload);
+      setReload(!reload); // Triggers re-fetch
     } catch (err) {
       alert("Failed to post comment");
+    } finally {
+      setCommentLoading(false); // ✅ hide button loading
     }
   };
 
@@ -71,7 +70,12 @@ function ProjectDetail() {
     }
   };
 
-  if (!project) return <div className="p-6 text-center">Loading...</div>;
+  if (loading)
+    return (
+      <div className="p-6 text-center text-gray-300 animate-pulse">
+        Loading project details...
+      </div>
+    );
 
   return (
     <div className="max-w-6xl mx-auto mt-10 p-4">
@@ -95,13 +99,11 @@ function ProjectDetail() {
           </a>
         </div>
 
-        {/* Right: Comments Section (Improved layout with fixed input) */}
+        {/* Right: Comments Section */}
         <div className="shadow rounded p-6 h-fit bg-gray-300 backdrop-blur-md bg-opacity-75 flex flex-col">
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-            Feedback
-          </h3>
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">Feedback</h3>
 
-          {/* Scrollable comments list */}
+          {/* Scrollable Comments List */}
           <div className="flex-1 overflow-y-auto border-t pt-2 pr-2 max-h-80 text-sm text-gray-700">
             <h4 className="font-semibold mb-1">Comments:</h4>
             {comments.length ? (
@@ -133,7 +135,7 @@ function ProjectDetail() {
             )}
           </div>
 
-          {/* Add Comment Form - fixed at bottom of card */}
+          {/* Add Comment Form */}
           {token && (
             <form
               onSubmit={(e) => handleCommentSubmit(e, project._id)}
@@ -149,9 +151,10 @@ function ProjectDetail() {
               />
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700"
+                className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 disabled:opacity-60"
+                disabled={commentLoading}
               >
-                Post
+                {commentLoading ? "Posting..." : "Post"}
               </button>
             </form>
           )}

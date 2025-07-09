@@ -4,6 +4,7 @@ import axios from 'axios';
 
 function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false); // ✅ loading state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -12,6 +13,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ start loading
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
@@ -21,6 +23,8 @@ function Login() {
       navigate('/');
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
   };
 
@@ -35,7 +39,7 @@ function Login() {
 
       <form
         onSubmit={handleSubmit}
-        className=" p-4 rounded-lg shadow-md  w-full max-w-sm"
+        className="p-4 rounded-lg shadow-md w-full max-w-sm"
       >
         <h3 className="text-xl font-semibold text-gray-100 mb-6 text-center">
           Sign in to your account
@@ -47,7 +51,8 @@ function Login() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full mb-4 px-4 py-2 border bg-gray-50 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={loading}
+          className="w-full mb-4 px-4 py-2 border bg-gray-50 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           required
         />
         <input
@@ -56,15 +61,17 @@ function Login() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full mb-6 px-4 py-2 border bg-gray-50 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={loading}
+          className="w-full mb-6 px-4 py-2 border bg-gray-50 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           required
         />
 
         <button
           type="submit"
-          className="w-full bg-blue-900 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          disabled={loading}
+          className="w-full bg-blue-900 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Login
+          {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
     </div>

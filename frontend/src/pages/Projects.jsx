@@ -5,18 +5,22 @@ import { useNavigate } from "react-router-dom";
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true); // ✅ loading state
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        setLoading(true); // ✅ start loading
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/projects`
         );
         setProjects(res.data);
       } catch (err) {
         console.error("Failed to fetch projects", err);
+      } finally {
+        setLoading(false); // ✅ stop loading
       }
     };
 
@@ -49,7 +53,11 @@ function Projects() {
         />
       </div>
 
-      {filteredProjects.length ? (
+      {loading ? (
+        <p className="text-center text-gray-300 italic animate-pulse">
+          Loading projects...
+        </p>
+      ) : filteredProjects.length ? (
         <div className="flex flex-wrap -m-4 justify-center">
           {filteredProjects.map((project) => (
             <div key={project._id} className="p-4 lg:w-1/3 w-full">
