@@ -1,5 +1,4 @@
 # Dev-Connect
-# 🚀 Project Portfolio App
 
 A full-stack web application where users can create, edit, and manage their project portfolios. Users can add project details, technology stacks, comment on others' projects, and edit or delete their own comments and projects.
 
