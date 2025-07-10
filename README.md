@@ -62,9 +62,9 @@ VITE_API_URL=http://localhost:5000
 
 ### 4. Run the app
 # Start backend
-cd backend
-npm run dev
+cd backend <br>
+node server.js
 
 # Start frontend
-cd frontend
+cd frontend <br>
 npm run dev
