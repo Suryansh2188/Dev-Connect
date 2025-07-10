@@ -44,18 +44,18 @@ cd project-portfolio-app
 
 ### 2. Install dependencies
 # For frontend
-cd frontend
+cd frontend <br>
 npm install
 
 # For backend
-cd backend
+cd backend <br>
 npm install
 
 ### 3. Environment Variables
 ## Create a .env file inside the backend/ directory:
-PORT=5000
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
+PORT=5000 <br>
+MONGO_URI=your_mongodb_uri <br>
+JWT_SECRET=your_jwt_secret <br>
 
 ## Create a .env file inside the frontend/ directory:
 VITE_API_URL=http://localhost:5000
